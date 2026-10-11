@@ -1,0 +1,26 @@
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include -I/home/madhav/bddlib/   -c -o tr.o tr.c
+tr.c: In function 'fatal':
+tr.c:139: warning: incompatible implicit declaration of built-in function 'exit'
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include -I/home/madhav/bddlib/   -c -o vec.o vec.c
+ar r libtr.a tr.o vec.o
+ar: creating libtr.a
+ranlib libtr.a
+for archive in libtr.a; do \
+	  mv $archive /home/madhav/courses/bdd/cmu_bdd/lib/; \
+	done
+for include in truser.h; do \
+	  cp $include /home/madhav/courses/bdd/cmu_bdd/include; \
+	done
+for manpage in tr.3; do \
+	  case $manpage in \
+	    *.0 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man0;; \
+	    *.1 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man1;; \
+	    *.2 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man2;; \
+	    *.3 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man3;; \
+	    *.4 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man4;; \
+	    *.5 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man5;; \
+	    *.6 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man6;; \
+	    *.7 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man7;; \
+	    *.8 ) cp $manpage /home/madhav/courses/bdd/cmu_bdd/man/man8;; \
+	  esac; \
+	done

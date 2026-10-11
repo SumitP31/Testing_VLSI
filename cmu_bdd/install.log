@@ -1,0 +1,77 @@
+ar r libbdd.a bdd.o bddapply.o bddassoc.o bddblk.o bddcache.o bddcmp.o bddcomp.o bdddump.o bddhash.o bddmisc.o bddprimes.o bddprint.o bddprprofile.o bddqnt.o bddreduce.o bddrelprod.o bddreorder.o bddsat.o bddsize.o bddsupport.o bddswap.o bddunique.o bddwarn.o mtbdd.o
+ar: creating libbdd.a
+ranlib libbdd.a
+for archive in libbdd.a; do \
+	  mv $archive /home/madhav/courses/bdd/cmu_bdd/lib/; \
+	done
+for include in bdduser.h bddint.h; do \
+	  cp -f $include /home/madhav/courses/bdd/cmu_bdd/include; \
+	done
+for manpage in bdd.3; do \
+	  case $manpage in \
+	    *.1 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man1;; \
+	    *.3 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man3;; \
+	  esac; \
+	done
+ar r libmem.a memblock.o memrec.o
+ar: creating libmem.a
+ranlib libmem.a
+for archive in libmem.a; do \
+	  mv $archive /home/madhav/courses/bdd/cmu_bdd/lib/; \
+	done
+for include in memuser.h; do \
+	  cp -f $include /home/madhav/courses/bdd/cmu_bdd/include; \
+	done
+for manpage in mem.3; do \
+	  case $manpage in \
+	    *.0 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man0;; \
+	    *.1 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man1;; \
+	    *.2 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man2;; \
+	    *.3 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man3;; \
+	    *.4 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man4;; \
+	    *.5 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man5;; \
+	    *.6 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man6;; \
+	    *.7 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man7;; \
+	    *.8 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man8;; \
+	  esac; \
+	done
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include   -c -o grammar.o grammar.c
+grammar.c:1: warning: conflicting types for built-in function 'malloc'
+grammar.c:1: warning: conflicting types for built-in function 'realloc'
+/usr/lib/yaccpar: In function 'yyparse':
+/usr/lib/yaccpar:269: warning: incompatible implicit declaration of built-in function 'free'
+/usr/lib/yaccpar:331: warning: incompatible implicit declaration of built-in function 'free'
+/usr/lib/yaccpar:368: warning: incompatible implicit declaration of built-in function 'free'
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include   -c -o hash.o hash.c
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include   -c -o input.o input.c
+input.c: In function 'yylook':
+input.c:698: warning: cast from pointer to integer of different size
+input.c:698: warning: cast from pointer to integer of different size
+input.c:708: warning: cast from pointer to integer of different size
+input.c:708: warning: cast from pointer to integer of different size
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include   -c -o main.o main.c
+cc -g -I. -I/home/madhav/courses/bdd/cmu_bdd/include   -c -o vec.o vec.c
+cc -o boole grammar.o hash.o input.o main.o vec.o -L/home/madhav/courses/bdd/cmu_bdd/lib/ -lbdd -lmem
+cp -f boole /home/madhav/courses/bdd/cmu_bdd/bin
+ar r libtr.a tr.o vec.o
+ar: creating libtr.a
+ranlib libtr.a
+for archive in libtr.a; do \
+	  mv $archive /home/madhav/courses/bdd/cmu_bdd/lib/; \
+	done
+for include in truser.h; do \
+	  cp -f $include /home/madhav/courses/bdd/cmu_bdd/include; \
+	done
+for manpage in tr.3; do \
+	  case $manpage in \
+	    *.0 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man0;; \
+	    *.1 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man1;; \
+	    *.2 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man2;; \
+	    *.3 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man3;; \
+	    *.4 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man4;; \
+	    *.5 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man5;; \
+	    *.6 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man6;; \
+	    *.7 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man7;; \
+	    *.8 ) cp -f $manpage /home/madhav/courses/bdd/cmu_bdd/man/man8;; \
+	  esac; \
+	done

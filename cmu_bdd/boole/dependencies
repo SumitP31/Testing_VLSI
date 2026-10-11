@@ -1,0 +1,15 @@
+grammar.o: grammar.c boole.h \
+ /cmu_bdd/include/bdduser.h \
+ /cmu_bdd/include/memuser.h hash.h vec.h
+hash.o: hash.c /cmu_bdd/include/memuser.h \
+ hash.h
+input.o: input.c boole.h \
+ /cmu_bdd/include/bdduser.h \
+ /cmu_bdd/include/memuser.h hash.h vec.h \
+ y.tab.h
+main.o: main.c boole.h \
+ /cmu_bdd/include/bdduser.h \
+ /cmu_bdd/include/memuser.h hash.h vec.h \
+ y.tab.h
+vec.o: vec.c /cmu_bdd/include/memuser.h \
+ vec.h

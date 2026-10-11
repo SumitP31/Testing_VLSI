@@ -1,0 +1,5 @@
+tr.o: tr.c truser.h \
+ /cmu_bdd/include/bdduser.h \
+ /cmu_bdd/include/memuser.h vec.h
+vec.o: vec.c /cmu_bdd/include/memuser.h \
+ vec.h

@@ -1,0 +1,25 @@
+bdd.o: bdd.c bddint.h bdduser.h memuser.h
+bddapply.o: bddapply.c bddint.h bdduser.h memuser.h
+bddassoc.o: bddassoc.c bddint.h bdduser.h memuser.h
+bddblk.o: bddblk.c bddint.h bdduser.h memuser.h
+bddcache.o: bddcache.c bddint.h bdduser.h memuser.h
+bddcmp.o: bddcmp.c bddint.h bdduser.h memuser.h
+bddcomp.o: bddcomp.c bddint.h bdduser.h memuser.h
+bdddump.o: bdddump.c bddint.h bdduser.h memuser.h
+bddhash.o: bddhash.c bddint.h bdduser.h memuser.h
+bddmisc.o: bddmisc.c bddint.h bdduser.h memuser.h
+bddprimes.o: bddprimes.c
+bddprint.o: bddprint.c bddint.h bdduser.h memuser.h
+bddprprofile.o: bddprprofile.c bddint.h bdduser.h memuser.h
+bddqnt.o: bddqnt.c bddint.h bdduser.h memuser.h
+bddreduce.o: bddreduce.c bddint.h bdduser.h memuser.h
+bddrelprod.o: bddrelprod.c bddint.h bdduser.h memuser.h
+bddreorder.o: bddreorder.c bddint.h bdduser.h memuser.h
+bddsat.o: bddsat.c bddint.h bdduser.h memuser.h
+bddsize.o: bddsize.c bddint.h bdduser.h memuser.h
+bddsupport.o: bddsupport.c bddint.h bdduser.h memuser.h
+bddswap.o: bddswap.c bddint.h bdduser.h memuser.h
+bddunique.o: bddunique.c bddint.h bdduser.h memuser.h
+bddwarn.o: bddwarn.c bddint.h bdduser.h memuser.h
+mtbdd.o: mtbdd.c bddint.h bdduser.h memuser.h
+testbdd.o: testbdd.c bddint.h bdduser.h memuser.h
