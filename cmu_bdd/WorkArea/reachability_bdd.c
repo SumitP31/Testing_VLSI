@@ -53,7 +53,9 @@ int main(void)
     /* Outputs from the assignment (overbars are Boolean complements). */
     g0 = bdd_ite(bddm, s[0],
                  bdd_and(bddm, s[1], bdd_not(bddm, s[2])), s[1]);
-    g1 = bdd_ite(bddm, s[0], s[2], bdd_and(bddm, s[2], s[1]));
+    /* g1 = p ? q1 : (q1 AND NOT q0). */
+    g1 = bdd_ite(bddm, s[0], s[2],
+                 bdd_and(bddm, s[2], bdd_not(bddm, s[1])));
 
     /* Next-state functions. The PDF has reset complemented, and also
        complements q0/q1 and g0/g1 in the corresponding product terms. */

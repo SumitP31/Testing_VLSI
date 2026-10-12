@@ -1,57 +1,46 @@
-# EE 709 Assignment 1 — starter code
+# EE 709 Assignment 1 — corrected code
 
-This project separates the BDD reachability work from the bounded SAT work.
+This package corrects the output equation for `g1` to match the overbar in the assignment PDF:
+
+- `g0 = p ? (q0 AND NOT q1) : q0`
+- `g1 = p ? q1 : (q1 AND NOT q0)`
+
+The next-state equations are encoded as shown in the PDF:
+
+- `q0_next = NOT reset AND ((r0 AND NOT q0) OR (NOT g0 AND q0))`
+- `q1_next = NOT reset AND ((r1 AND NOT q1) OR (NOT g1 AND q1))`
+- `p_next  = NOT reset AND (p XOR (g0 OR g1))`
 
 ## Files
 
-- `part1_bdd/circuit_bdd.h`: shared declarations for the BDD circuit model.
-- `part1_bdd/circuit_bdd.c`: output equations and transition relation.
-- `part1_bdd/reachability.c`: image computation and reachable-state enumeration.
-- `part2_sat/sat_encode.c`: emits DIMACS CNF for counterexample checks of (a), (b), (c), and (b) with `p=0`.
-- `Makefile`: build targets.
+- `reachability_bdd.c`: BDD image computation and state enumeration. It starts from `(p,q0,q1)=000` as an explicit working assumption, because the assignment does not specify an initial-state set.
+- `part2_sat.c`: creates DIMACS CNF files for the counterexample checks in Part 2. By default, the initial state is unconstrained, matching the absence of an initial-state condition in the PDF. Pass `--initial-zero` to constrain it to `000`.
+- `compile_bdd.sh`: example compile command; edit include/library paths for your BDD installation.
+- `compile_sat.sh`: compiles the SAT encoder.
+- `run_sat.sh`: generates CNFs and calls `minisat` on them.
 
-## Important modeling issue to resolve
-
-The assignment states `reset(0)=1` and `reset(k)=0` for `k>0`, but the extracted PDF text does not specify an initial-state set. The BDD starter currently uses `000` as an *illustrative* initial state (`INITIAL_STATE_MODE 0`). This is not asserted by the assignment and should be confirmed before treating results as the official answer. Setting `INITIAL_STATE_MODE 1` makes all eight states initially possible, which naturally makes the union of reachable states include all eight.
-
-The SAT encoding leaves the state at cycle 0 unconstrained for the same reason. If the instructor specifies an initial state, add unit clauses for the initial state bits in `encode_trace`.
-
-## Build
-
-The BDD manual says programs should link with `-lbdd -lmem`. From this directory:
+## Build and run
 
 ```sh
-make bdd
-make sat
+chmod +x compile_bdd.sh compile_sat.sh run_sat.sh
+./compile_sat.sh
+./run_sat.sh
 ```
 
-If the library/header is not in the compiler's default search path, add the appropriate `-I/path/to/include` and `-L/path/to/lib` flags in the Makefile.
-
-## Run
+For the BDD program, set the include/library paths in `compile_bdd.sh` to your `bdduser.h`, `libbdd`, and `libmem` installation, then run:
 
 ```sh
+./compile_bdd.sh
 ./reachability_bdd
-./sat_encode
 ```
 
-The SAT program writes four files:
+The SAT files encode *counterexamples*:
 
-- `property_a_counterexample.cnf`
-- `property_b_counterexample.cnf`
-- `property_c_counterexample.cnf`
-- `property_b_p_zero_counterexample.cnf`
+- Property (a): SAT means a bounded trace violates `AG(r0 -> F g0)`; UNSAT means no such counterexample exists in the encoded eight-cycle window.
+- Property (b): SAT means a bounded trace violates `AG(r1 -> F g1)`.
+- Property (c): SAT means a trace reaches a cycle with `g0 AND g1`; this is a counterexample to `NOT EF(g0 AND g1)`.
+- Modified property (b): SAT means a counterexample exists when `p` is forced to zero.
 
-Run your course's DIMACS-compatible SAT solver on each generated file. The program generates CNF; it does not itself solve it.
+For properties (a) and (b), the encoder disallows requests at cycle 7 because the trace contains no later sample in which to observe a response. Requests at cycles 0..6 must be answered by the corresponding output by cycle 7. This is an explicit bounded-response convention; interpret SAT as a counterexample within this window, not automatically as proof of an unbounded liveness failure.
 
-## Interpreting SAT results
-
-Each CNF encodes a counterexample to the property, not the property directly:
-
-- SAT: a violating trace exists in the 8-cycle encoding.
-- UNSAT: no violating trace exists in the 8-cycle encoding.
-
-For (a) and (b), the finite-window interpretation used here treats a violation as an asserted request at cycle `t` with the corresponding output false for every cycle from `t` through cycle 7. If your course uses a different bounded-temporal-logic convention, revise this encoding accordingly.
-
-## Verification before submission
-
-This is a commented starter implementation, not a claim that the assignment has been fully validated against your course environment. Compile it with the provided `bdduser.h` installation, inspect generated CNF, run the intended SAT solver, and retain actual terminal logs for the report. Do not claim a solver result until the solver has been run.
+**Initial-state note:** The assignment PDF gives the reset schedule but does not explicitly specify the initial state. The BDD program uses `000` as an explicit starting assumption; the SAT encoder defaults to an unconstrained cycle-0 state. Make these assumptions consistent with your instructor's interpretation before presenting results as directly comparable.

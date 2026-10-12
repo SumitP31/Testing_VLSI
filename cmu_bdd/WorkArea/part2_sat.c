@@ -152,8 +152,9 @@ static void build_trace(CNF *cnf, Trace *tr, int initial_zero, int p_zero)
         tr->g1[t] = new_var(cnf);
         /* reset(0)=1; reset(k)=0 for k>0. */
         unit(cnf, t == 0 ? tr->reset[t] : -tr->reset[t]);
-        /* Do not allow a new request on the final sampled cycle: there is
-           no later cycle in the bounded trace in which its output can occur. */
+        /* Do not initiate a new request on the final sampled cycle: the
+           bounded window has no later cycle in which to observe its response.
+           Requests at cycles 0..6 must be answered by the end of cycle 7. */
         if (t == HORIZON - 1) {
             unit(cnf, -tr->r0[t]);
             unit(cnf, -tr->r1[t]);
@@ -172,10 +173,10 @@ static void build_trace(CNF *cnf, Trace *tr, int initial_zero, int p_zero)
         int q0_update_a, q0_update_b, q1_update_a, q1_update_b;
 
         /* g0 = p ? (q0 AND NOT q1) : q0
-           g1 = p ? q1 : (q1 AND q0). */
+           g1 = p ? q1 : (q1 AND NOT q0). */
         g0_inner = gate_or(cnf, -tr->p[t], -tr->q1[t]);
         equivalent(cnf, tr->g0[t], gate_and(cnf, tr->q0[t], g0_inner));
-        g1_inner = gate_or(cnf, tr->p[t], tr->q0[t]);
+        g1_inner = gate_or(cnf, tr->p[t], -tr->q0[t]);
         equivalent(cnf, tr->g1[t], gate_and(cnf, tr->q1[t], g1_inner));
 
         if (t == HORIZON - 1)
