@@ -57,6 +57,19 @@ int main(void)
     g1 = bdd_ite(bddm, s[0], s[2],
                  bdd_and(bddm, s[2], bdd_not(bddm, s[1])));
 
+    /*
+     * Print the general ROBDDs for the two output functions.
+     * These depend on the current state variables (p,q0,q1), not on
+     * the reachability frontier at any particular cycle.
+     */
+    printf("ROBDD for g0:\n");
+    bdd_print_bdd(bddm, g0, NULL, NULL, NULL, stdout);
+    printf("----------------------------------------------------\n");
+    
+    printf("ROBDD for g1:\n");
+    bdd_print_bdd(bddm, g1, NULL, NULL, NULL, stdout);
+    printf("----------------------------------------------------\n");
+
     /* Next-state functions. The PDF has reset complemented, and also
        complements q0/q1 and g0/g1 in the corresponding product terms. */
     f_q0 = bdd_and(bddm, bdd_not(bddm, u[0]),
