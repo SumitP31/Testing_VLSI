@@ -217,6 +217,13 @@ static void add_request_miss(CNF *cnf, Trace *tr, int request_is_r0)
 {
     int terms[HORIZON];
     int t, j;
+
+    /*
+     * For the property AG(r0 -> F g0), the counterexample condition is
+     * r0=1 at the selected starting cycle and g0 remains 0 thereafter.
+     * Here the user's intended assumption is stronger: r0 is held high
+     * throughout this bounded trace. Property (b) analogously holds r1 high.
+     */
     for (t = 0; t < HORIZON; ++t) {
         int chain[HORIZON - t + 1];
         int count = 0;
@@ -225,6 +232,11 @@ static void add_request_miss(CNF *cnf, Trace *tr, int request_is_r0)
             chain[count++] = request_is_r0 ? -tr->g0[j] : -tr->g1[j];
         terms[t] = and_all(cnf, chain, count);
     }
+
+    /* Keep the corresponding request asserted at every sampled cycle. */
+    for (t = 0; t < HORIZON; ++t)
+        unit(cnf, request_is_r0 ? tr->r0[t] : tr->r1[t]);
+
     unit(cnf, or_all(cnf, terms, HORIZON));
 }
 
