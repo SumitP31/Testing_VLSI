@@ -262,6 +262,114 @@ static void free_cnf(CNF *cnf)
     free(cnf->items);
 }
 
+
+static int model_value(const int *values, int lit)
+{
+    int v = values[abs(lit)];
+    return lit > 0 ? v : !v;
+}
+
+static void print_trace(const char *label, const Trace *tr,
+                        const int *values)
+{
+    int t;
+    printf("\nCOUNTEREXAMPLE / WITNESS: %s\n", label);
+    printf("cycle | reset r0 r1 | p q0 q1 | g0 g1\n");
+    printf("------+-------------+---------+------\n");
+    for (t = 0; t < HORIZON; ++t) {
+        printf("  %d   |   %d   %d  %d | %d  %d  %d |  %d  %d\n",
+               t,
+               model_value(values, tr->reset[t]),
+               model_value(values, tr->r0[t]),
+               model_value(values, tr->r1[t]),
+               model_value(values, tr->p[t]),
+               model_value(values, tr->q0[t]),
+               model_value(values, tr->q1[t]),
+               model_value(values, tr->g0[t]),
+               model_value(values, tr->g1[t]));
+    }
+}
+
+/*
+ * Run MiniSat if it is installed. MiniSat writes SAT/UNSAT and a model
+ * to the requested output file. A SAT model is decoded using the variable
+ * IDs stored in Trace, so the output is a concrete cycle-by-cycle trace.
+ */
+static void solve_and_print(const char *cnf_path, const char *label,
+                            const CNF *cnf, const Trace *tr)
+{
+    char model_path[256];
+    char command[600];
+    FILE *fp;
+    char status[32];
+    int *values;
+    int lit;
+
+    snprintf(model_path, sizeof(model_path), "%s.model", cnf_path);
+    snprintf(command, sizeof(command),
+             "minisat \"%s\" \"%s\" > /dev/null 2>&1",
+             cnf_path, model_path);
+    {
+        int solver_status = system(command);
+        if (solver_status == -1) {
+            perror("Failed to launch MiniSat");
+            printf("Could not execute MiniSat for %s.\n", cnf_path);
+            return;
+        }
+    }
+
+    fp = fopen(model_path, "r");
+    if (!fp) {
+        printf("Solver output unavailable for %s. Install MiniSat and run:\n"
+               "  minisat %s %s\n",
+               cnf_path, cnf_path, model_path);
+        return;
+    }
+
+    if (fscanf(fp, "%31s", status) != 1) {
+        fclose(fp);
+        printf("Could not read solver result for %s.\n", cnf_path);
+        return;
+    }
+
+    if (strcmp(status, "UNSAT") == 0 ||
+        strcmp(status, "UNSATISFIABLE") == 0) {
+        printf("\nNO COUNTEREXAMPLE FOUND: %s is UNSAT within cycles 0..7.\n",
+               label);
+        fclose(fp);
+        return;
+    }
+
+    if (strcmp(status, "SAT") != 0 &&
+        strcmp(status, "SATISFIABLE") != 0) {
+        printf("Unrecognized MiniSat result '%s' for %s.\n", status, cnf_path);
+        fclose(fp);
+        return;
+    }
+
+    values = (int *)calloc((size_t)cnf->variables + 1, sizeof(int));
+    if (!values) {
+        fclose(fp);
+        fprintf(stderr, "out of memory while reading SAT model\n");
+        exit(2);
+    }
+
+    while (fscanf(fp, "%d", &lit) == 1) {
+        int var;
+        if (lit == 0)
+            continue;
+        var = abs(lit);
+        if (var <= cnf->variables)
+            values[var] = (lit > 0) ? 1 : 0;
+    }
+    fclose(fp);
+
+    print_trace(label, tr, values);
+    printf("Interpretation: this trace satisfies the encoded bounded "
+           "counterexample condition.\n");
+    free(values);
+}
+
 static void generate(const char *path, int query, int initial_zero)
 {
     CNF cnf = {0, 0, 0, NULL};
@@ -275,6 +383,16 @@ static void generate(const char *path, int query, int initial_zero)
     write_cnf(path, &cnf);
     printf("Wrote %-42s (%d variables, %d clauses)\n",
            path, cnf.variables, cnf.clauses);
+
+    {
+        const char *labels[] = {
+            "property (a): request r0 is not followed by g0",
+            "property (b): request r1 is not followed by g1",
+            "property (c): simultaneous outputs g0 AND g1 (violates !EF)",
+            "property (b) with p=0: request r1 is not followed by g1"
+        };
+        solve_and_print(path, labels[query], &cnf, &tr);
+    }
     free_cnf(&cnf);
 }
 
